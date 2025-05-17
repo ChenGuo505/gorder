@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package stockpb;
 
-option go_package = "github.com/ChenGuo505/gorder/internal/common/genproto/stockpb";
+option go_package = "github.com/ChenGuo505/gorder/common/genproto/stockpb";
 
 import "orderpb/order.proto";
 

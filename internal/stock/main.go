@@ -22,5 +22,4 @@ func main() {
 	default:
 		panic("unsupported server type")
 	}
-
 }
