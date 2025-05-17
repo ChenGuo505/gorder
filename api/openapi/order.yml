@@ -135,7 +135,7 @@ components:
     ItemWithQuantity:
         type: object
         properties:
-          id:
+          itemId:
             type: string
             description: item id
           quantity:
