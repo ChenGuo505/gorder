@@ -2,13 +2,17 @@ package ports
 
 import (
 	"context"
+
 	"github.com/ChenGuo505/gorder/common/genproto/stockpb"
+	"github.com/ChenGuo505/gorder/stock/app"
 )
 
-type GRPCServer struct{}
+type GRPCServer struct {
+	app app.Application
+}
 
-func NewGRPCServer() *GRPCServer {
-	return &GRPCServer{}
+func NewGRPCServer(app app.Application) *GRPCServer {
+	return &GRPCServer{app: app}
 }
 
 func (g GRPCServer) GetItems(ctx context.Context, req *stockpb.GetItemsRequest) (*stockpb.GetItemsResponse, error) {
