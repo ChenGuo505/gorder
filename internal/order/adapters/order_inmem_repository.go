@@ -16,9 +16,17 @@ type MemoryOrderRepository struct {
 }
 
 func NewMemoryOrderRepository() *MemoryOrderRepository {
+	s := make([]*domain.Order, 0)
+	s = append(s, &domain.Order{
+		Id:          "fakeId",
+		CustomerId:  "fakeCustomerId",
+		Status:      "fakeStatus",
+		PaymentLink: "fakePaymentLink",
+		Items:       nil,
+	})
 	return &MemoryOrderRepository{
 		lock:  &sync.RWMutex{},
-		store: make([]*domain.Order, 0),
+		store: s,
 	}
 }
 
