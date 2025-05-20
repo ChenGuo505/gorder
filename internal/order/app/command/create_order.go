@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"github.com/ChenGuo505/gorder/order/app/query"
 
 	"github.com/ChenGuo505/gorder/common/decorator"
 	"github.com/ChenGuo505/gorder/common/genproto/orderpb"
@@ -22,6 +23,7 @@ type CreateOrderHandler decorator.CommandHandler[CreateOrder, *CreateOrderResult
 
 type createOrderHandler struct {
 	orderRepo domain.Repository
+	stockGRPC query.StockService
 }
 
 func (c createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) (*CreateOrderResult, error) {
@@ -46,13 +48,14 @@ func (c createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) (*Creat
 	}, nil
 }
 
-func NewCreateOrderHandler(orderRepo domain.Repository, logger *logrus.Entry, metricsClient decorator.MetricsClient) CreateOrderHandler {
+func NewCreateOrderHandler(orderRepo domain.Repository, stockGRPC query.StockService, logger *logrus.Entry, metricsClient decorator.MetricsClient) CreateOrderHandler {
 	if orderRepo == nil {
 		panic("orderRepo cannot be nil")
 	}
 	return decorator.AppluCommandDecorators(
 		createOrderHandler{
 			orderRepo: orderRepo,
+			stockGRPC: stockGRPC,
 		},
 		logger,
 		metricsClient,

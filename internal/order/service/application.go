@@ -13,6 +13,7 @@ import (
 
 func NewApplication(ctx context.Context) app.Application {
 	orderRepo := adapters.NewMemoryOrderRepository()
+
 	logger := logrus.NewEntry(logrus.StandardLogger())
 	metricsClient := metrics.TodoMetrics{}
 	return app.Application{
