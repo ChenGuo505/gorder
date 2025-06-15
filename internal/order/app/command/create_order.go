@@ -27,6 +27,10 @@ type createOrderHandler struct {
 }
 
 func (c createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) (*CreateOrderResult, error) {
+	// TODO: call stock grpc to get items
+	err := c.stockGRPC.CheckIfItemsInStock(ctx, cmd.Items)
+	resp, err := c.stockGRPC.GetItems(ctx, []string{"123"})
+	logrus.Info("createOrderHandler || resp from stockGRPC.GetItems", resp)
 	var stockResponse []*orderpb.Item
 	for _, item := range cmd.Items {
 		stockResponse = append(stockResponse, &orderpb.Item{

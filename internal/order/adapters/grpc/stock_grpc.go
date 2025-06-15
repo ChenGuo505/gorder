@@ -23,8 +23,8 @@ func (s StockGRPC) CheckIfItemsInStock(ctx context.Context, items []*orderpb.Ite
 	return err
 }
 
-func (s StockGRPC) GetItems(ctx context.Context, strings []string) ([]*orderpb.Item, error) {
-	resp, err := s.client.GetItems(ctx, &stockpb.GetItemsRequest{ItemIds: strings})
+func (s StockGRPC) GetItems(ctx context.Context, itemsId []string) ([]*orderpb.Item, error) {
+	resp, err := s.client.GetItems(ctx, &stockpb.GetItemsRequest{ItemIds: itemsId})
 	if err != nil {
 		return nil, err
 	}
