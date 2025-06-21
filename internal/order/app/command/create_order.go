@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"errors"
 	"github.com/ChenGuo505/gorder/order/app/query"
 
 	"github.com/ChenGuo505/gorder/common/decorator"
@@ -27,20 +28,13 @@ type createOrderHandler struct {
 }
 
 func (c createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) (*CreateOrderResult, error) {
-	// TODO: call stock grpc to get items
-	err := c.stockGRPC.CheckIfItemsInStock(ctx, cmd.Items)
-	resp, err := c.stockGRPC.GetItems(ctx, []string{"123"})
-	logrus.Info("createOrderHandler || resp from stockGRPC.GetItems", resp)
-	var stockResponse []*orderpb.Item
-	for _, item := range cmd.Items {
-		stockResponse = append(stockResponse, &orderpb.Item{
-			Id:       item.ItemId,
-			Quantity: item.Quantity,
-		})
+	validItems, err := c.validate(ctx, cmd.Items)
+	if err != nil {
+		return nil, err
 	}
 	order, err := c.orderRepo.Create(ctx, &domain.Order{
 		CustomerId: cmd.CustomerId,
-		Items:      stockResponse,
+		Items:      validItems,
 	})
 
 	if err != nil {
@@ -50,6 +44,33 @@ func (c createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) (*Creat
 	return &CreateOrderResult{
 		OrderId: order.Id,
 	}, nil
+}
+
+func (c createOrderHandler) validate(ctx context.Context, items []*orderpb.ItemWithQuantity) ([]*orderpb.Item, error) {
+	if len(items) == 0 {
+		return nil, errors.New("must provide at least one item")
+	}
+	items = packItems(items)
+	resp, err := c.stockGRPC.CheckIfItemsInStock(ctx, items)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Items, nil
+}
+
+func packItems(items []*orderpb.ItemWithQuantity) []*orderpb.ItemWithQuantity {
+	merged := make(map[string]int32)
+	for _, item := range items {
+		merged[item.ItemId] += item.Quantity
+	}
+	var packedItems []*orderpb.ItemWithQuantity
+	for itemId, quantity := range merged {
+		packedItems = append(packedItems, &orderpb.ItemWithQuantity{
+			ItemId:   itemId,
+			Quantity: quantity,
+		})
+	}
+	return packedItems
 }
 
 func NewCreateOrderHandler(orderRepo domain.Repository, stockGRPC query.StockService, logger *logrus.Entry, metricsClient decorator.MetricsClient) CreateOrderHandler {
