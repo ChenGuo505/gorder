@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/ChenGuo505/gorder/common/discovery"
 
 	"github.com/ChenGuo505/gorder/common/config"
 	"github.com/ChenGuo505/gorder/common/genproto/orderpb"
@@ -28,6 +29,13 @@ func main() {
 
 	application, cleanup := service.NewApplication(ctx)
 	defer cleanup()
+	deregisterFunc, err := discovery.RegisterToConsul(ctx, serviceName)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	defer func() {
+		_ = deregisterFunc()
+	}()
 	go server.RunGRPCServer(serviceName, func(server *grpc.Server) {
 		svc := ports.NewGRPCServer(application)
 		orderpb.RegisterOrderServiceServer(server, svc)
