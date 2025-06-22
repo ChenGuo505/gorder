@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/ChenGuo505/gorder/common/discovery"
+	"github.com/ChenGuo505/gorder/common/logging"
 
 	"github.com/ChenGuo505/gorder/common/config"
 	"github.com/ChenGuo505/gorder/common/genproto/stockpb"
@@ -15,6 +16,7 @@ import (
 )
 
 func init() {
+	logging.Init()
 	if err := config.NewViperConfig(); err != nil {
 		logrus.Fatal(err)
 	}
